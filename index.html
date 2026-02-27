@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Turhan S. — Cybersecurity Portfolio</title>
+  <meta name="description" content="Cybersecurity specialist portfolio — threat analysis, Chrome extensions, security tools." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ── NAV ─────────────────────────────────────────── -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#hero"><span class="accent">&gt;_</span> turhanS</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#education">Education</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ── HERO ────────────────────────────────────────── -->
+  <section id="hero">
+    <div class="hero-bg">
+      <canvas id="matrixCanvas"></canvas>
+    </div>
+    <div class="hero-content">
+      <p class="hero-greeting">Hello, World. I'm</p>
+      <h1 class="hero-name">Turhan <span class="accent">S.</span></h1>
+      <div class="hero-typewriter">
+        <span id="typewriter"></span><span class="cursor">|</span>
+      </div>
+      <p class="hero-desc">
+        Building tools that detect threats before they become incidents.
+      </p>
+      <div class="hero-btns">
+        <a href="#projects" class="btn btn-primary">View Projects</a>
+        <a href="#contact" class="btn btn-outline">Contact Me</a>
+      </div>
+      <div class="hero-badges">
+        <span class="badge">🛡️ Threat Analysis</span>
+        <span class="badge">🔍 Email Security</span>
+        <span class="badge">⚙️ Chrome Extensions</span>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <a href="#about">↓</a>
+    </div>
+  </section>
+
+  <!-- ── ABOUT ────────────────────────────────────────── -->
+  <section id="about">
+    <div class="container">
+      <h2 class="section-title">About <span class="accent">Me</span></h2>
+      <div class="about-grid">
+        <div class="about-text">
+          <p>
+            I'm a <strong>cybersecurity enthusiast</strong> focused on building practical tools that protect users from phishing, social engineering, and email-based threats.
+          </p>
+          <p>
+            My work combines <strong>threat intelligence</strong>, <strong>header analysis</strong>, and <strong>real-time detection</strong> into browser-native extensions that anyone can use — no technical background required.
+          </p>
+          <p>
+            I believe security should be <em>accessible</em>. That's why I build tools that run entirely locally, respect user privacy, and give clear, actionable guidance.
+          </p>
+          <div class="about-stats">
+            <div class="stat">
+              <span class="stat-num accent">9+</span>
+              <span class="stat-label">Languages Supported</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num accent">6</span>
+              <span class="stat-label">Analysis Modules</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num accent">7</span>
+              <span class="stat-label">Email Providers</span>
+            </div>
+          </div>
+        </div>
+        <div class="about-card">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+              <span class="terminal-title">whoami.sh</span>
+            </div>
+            <div class="terminal-body">
+              <p><span class="term-prompt">$</span> <span class="term-cmd">cat profile.json</span></p>
+              <p class="term-out">{</p>
+              <p class="term-out">&nbsp;&nbsp;"role": <span class="term-str">"Cybersecurity Developer"</span>,</p>
+              <p class="term-out">&nbsp;&nbsp;"focus": <span class="term-str">"Email Threat Analysis"</span>,</p>
+              <p class="term-out">&nbsp;&nbsp;"tools": [<span class="term-str">"Chrome MV3"</span>, <span class="term-str">"JS"</span>, <span class="term-str">"APIs"</span>],</p>
+              <p class="term-out">&nbsp;&nbsp;"status": <span class="term-green">"open to opportunities"</span></p>
+              <p class="term-out">}</p>
+              <p><span class="term-prompt">$</span> <span class="term-cursor">█</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SKILLS ───────────────────────────────────────── -->
+  <section id="skills">
+    <div class="container">
+      <h2 class="section-title">Skills &amp; <span class="accent">Expertise</span></h2>
+      <div class="skills-grid">
+
+        <div class="skill-card">
+          <div class="skill-icon">🛡️</div>
+          <h3>Email Security</h3>
+          <ul>
+            <li>SPF / DKIM / DMARC Analysis</li>
+            <li>Phishing Header Forensics</li>
+            <li>Reply-To Mismatch Detection</li>
+            <li>Social Engineering Patterns</li>
+          </ul>
+        </div>
+
+        <div class="skill-card">
+          <div class="skill-icon">🌐</div>
+          <h3>Threat Intelligence</h3>
+          <ul>
+            <li>IP Reputation (DNSBL, AbuseIPDB)</li>
+            <li>URL Scanning (VirusTotal, PhishTank)</li>
+            <li>Domain WHOIS &amp; SSL History</li>
+            <li>Shodan IP Enrichment</li>
+          </ul>
+        </div>
+
+        <div class="skill-card">
+          <div class="skill-icon">⚙️</div>
+          <h3>Development</h3>
+          <ul>
+            <li>Chrome Extensions (Manifest V3)</li>
+            <li>JavaScript / Node.js</li>
+            <li>REST API Integration</li>
+            <li>Jest Unit Testing</li>
+          </ul>
+        </div>
+
+        <div class="skill-card">
+          <div class="skill-icon">🔍</div>
+          <h3>Analysis</h3>
+          <ul>
+            <li>Network Route Tracing</li>
+            <li>Typosquat Detection</li>
+            <li>GeoIP &amp; ASN Analysis</li>
+            <li>CVE / Vulnerability Research</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ──────────────────────────────────────── -->
+  <section id="projects">
+    <div class="container">
+      <h2 class="section-title">Featured <span class="accent">Projects</span></h2>
+      <div class="projects-grid">
+
+        <!-- PhishGuard Pro -->
+        <div class="project-card featured">
+          <div class="project-header">
+            <span class="project-icon">🛡️</span>
+            <div class="project-meta">
+              <span class="project-tag">Chrome Extension</span>
+              <span class="project-tag">MV3</span>
+              <span class="project-tag featured-tag">⭐ Featured</span>
+            </div>
+          </div>
+          <h3>PhishGuard Pro</h3>
+          <p>Advanced phishing email analyzer with real-time threat intelligence. Analyzes SPF/DKIM/DMARC, IP reputation, social engineering patterns, URLs, and sender domains — all running locally in your browser.</p>
+          <div class="project-features">
+            <span>🔐 Auth Checks</span>
+            <span>🌐 IP Analysis</span>
+            <span>🔗 URL Scanning</span>
+            <span>🧠 Social Eng.</span>
+            <span>🌍 9 Languages</span>
+            <span>📡 Route Tracing</span>
+          </div>
+          <div class="project-links">
+            <a href="https://github.com/turhanS/PhishGuard-Pro" target="_blank" rel="noopener" class="btn btn-sm btn-outline">
+              GitHub →
+            </a>
+          </div>
+        </div>
+
+        <!-- Placeholder project 2 -->
+        <div class="project-card">
+          <div class="project-header">
+            <span class="project-icon">🚀</span>
+            <div class="project-meta">
+              <span class="project-tag">Coming Soon</span>
+            </div>
+          </div>
+          <h3>Next Project</h3>
+          <p>More security tools in development. Stay tuned for updates on upcoming projects focused on network security and threat detection.</p>
+          <div class="project-links">
+            <a href="#contact" class="btn btn-sm btn-outline">Get Notified →</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EDUCATION ─────────────────────────────────────── -->
+  <section id="education">
+    <div class="container">
+      <h2 class="section-title">Education &amp; <span class="accent">Experience</span></h2>
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-date">2024 — Present</span>
+            <h3>Cybersecurity Development</h3>
+            <p class="timeline-org">Independent / Self-directed</p>
+            <p>Building practical security tools, studying threat intelligence, email forensics, and browser extension development.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-date">Update with CV</span>
+            <h3>Your Education Here</h3>
+            <p class="timeline-org">University / Institution</p>
+            <p>Send your CV and I'll update this section with your real education and experience details.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACT ───────────────────────────────────────── -->
+  <section id="contact">
+    <div class="container">
+      <h2 class="section-title">Get In <span class="accent">Touch</span></h2>
+      <div class="contact-grid">
+        <div class="contact-text">
+          <p>I'm currently open to new opportunities, collaborations, or just a good conversation about cybersecurity. Drop me a message!</p>
+          <div class="contact-links">
+            <a href="mailto:your@email.com" class="contact-link">
+              <span class="contact-icon">📧</span>
+              <span>your@email.com</span>
+            </a>
+            <a href="https://github.com/turhanS" target="_blank" rel="noopener" class="contact-link">
+              <span class="contact-icon">🐙</span>
+              <span>github.com/turhanS</span>
+            </a>
+            <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener" class="contact-link">
+              <span class="contact-icon">💼</span>
+              <span>LinkedIn Profile</span>
+            </a>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+              <span class="terminal-title">message.sh</span>
+            </div>
+            <div class="terminal-body">
+              <p><span class="term-prompt">$</span> <span class="term-cmd">send --to turhanS</span></p>
+              <p class="term-out"><span class="term-green">✓</span> Connection established</p>
+              <p class="term-out"><span class="term-green">✓</span> Ready to receive messages</p>
+              <p class="term-out"><span class="accent">→</span> Response time: &lt; 24h</p>
+              <p><span class="term-prompt">$</span> <span class="term-cursor">█</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ────────────────────────────────────────── -->
+  <footer>
+    <div class="container">
+      <p>
+        <span class="accent">&gt;_</span> turhanS · Built with HTML, CSS &amp; JS · Hosted on
+        <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a>
+      </p>
+      <p class="footer-copy">© 2026 Turhan S. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
