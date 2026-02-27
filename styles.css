@@ -40,7 +40,7 @@ a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
 a:hover { color: #93c5fd; }
 .accent { color: var(--accent); }
 .container { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
-.container-wide { max-width: 1320px; padding: 0 40px; }
+.container-wide { max-width: 1320px; margin: 0 auto; padding: 0 40px; }
 img { display: block; }
 
 /* Scrollbar */
