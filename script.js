@@ -34,7 +34,6 @@ const phrases = [
   'Cyber Security Lead',
   'Email Threat Analyst',
   'ISMS Manager',
-  'Phishing Detection Specialist',
   'Information Security Professional',
 ];
 let phraseIdx = 0, charIdx = 0, deleting = false;
