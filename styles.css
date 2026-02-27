@@ -446,43 +446,66 @@ section:nth-child(even) { background: var(--bg2); }
 
 /* ── FOOTER ─────────────────────────────────────────────── */
 footer {
-  background: #040710; border-top: 1px solid var(--border); padding: 40px 0; text-align: center;
+  position: relative;
+  background: #040710; border-top: 1px solid var(--border);
+  padding: 44px 0 32px; text-align: center;
+  min-height: 140px;
 }
 .footer-inner { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 footer p { color: var(--text-muted); font-size: 13px; }
 footer .footer-copy { color: var(--text-dim); font-size: 12px; }
+.footer-haunter-row {
+  display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+}
+.footer-haunter-row p { margin: 0; }
 
 /* ── Pokémon easter egg ──────────────────────────────────── */
-.footer-pokemon {
-  display: flex; gap: 32px; justify-content: center; align-items: flex-end;
-  margin-bottom: 12px;
-}
-.poke-wrap {
+
+/* Köşe Pokémon'ları (Gengar sol, Gastly sağ) */
+.poke-corner {
+  position: absolute; bottom: 18px;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   animation: poke-float 3s ease-in-out infinite;
   animation-delay: var(--poke-delay, 0s);
 }
+.poke-corner-left  { left: 28px; }
+.poke-corner-right { right: 28px; }
+
+/* Haunter — satır içi küçük */
+.poke-wrap.poke-inline {
+  display: flex; align-items: center;
+  animation: poke-float 3s ease-in-out infinite;
+  animation-delay: var(--poke-delay, 0s);
+}
+.poke-sprite-sm { width: 44px; height: 44px; }
+
+/* Ortak sprite stili */
 .poke-sprite {
   width: 64px; height: 64px;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: drop-shadow(0 0 10px rgba(99,179,237,0.35));
+  filter: drop-shadow(0 0 8px rgba(99,179,237,0.3));
   transition: filter 0.3s, transform 0.3s;
 }
+.poke-corner:hover .poke-sprite,
 .poke-wrap:hover .poke-sprite {
-  filter: drop-shadow(0 0 18px rgba(99,179,237,0.7));
-  transform: scale(1.18);
+  filter: drop-shadow(0 0 18px rgba(99,179,237,0.75));
+  transform: scale(1.2);
 }
 .poke-name {
   font-family: var(--mono); font-size: 10px; color: var(--text-dim);
-  letter-spacing: 1px; text-transform: uppercase;
-  transition: color 0.2s;
+  letter-spacing: 1px; text-transform: uppercase; transition: color 0.2s;
 }
-.poke-wrap:hover .poke-name { color: var(--accent); }
+.poke-corner:hover .poke-name { color: var(--accent); }
 
 @keyframes poke-float {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-10px); }
+}
+
+/* Küçük ekranda köşe sprite'ları gizle */
+@media (max-width: 600px) {
+  .poke-corner { display: none; }
 }
 
 /* ── ANIMATIONS ─────────────────────────────────────────── */
