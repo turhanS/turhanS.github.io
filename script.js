@@ -30,9 +30,10 @@ function highlightNavLink() {
 
 /* ── Typewriter effect ─────────────────────────────────────── */
 const phrases = [
-  'Cybersecurity Developer',
+  'Cyber Security Lead',
+  'ISO 27001 Specialist',
   'Email Threat Analyst',
-  'Chrome Extension Builder',
+  'ISMS Manager',
   'Phishing Detection Specialist',
 ];
 let phraseIdx = 0, charIdx = 0, deleting = false;
