@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard — Research Paper</title>
+  <link rel="icon" href="phishguard-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #3b82f6;
+      --blue-lt: #dbeafe;
+      --blue-dk: #1e40af;
+      --navy:    #0f172a;
+      --slate:   #1e293b;
+      --text:    #1e293b;
+      --muted:   #64748b;
+      --border:  #e2e8f0;
+      --bg:      #f8fafc;
+      --white:   #ffffff;
+      --red:     #ef4444;
+      --yellow:  #f59e0b;
+      --green:   #22c55e;
+      --code-bg: #0f172a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.8;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    /* ── TOPBAR ─────────────────────────────────────────── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--navy);
+      padding: 0 2rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.4);
+    }
+    .topbar img { width: 28px; height: 28px; border-radius: 6px; }
+    .topbar-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: .3px;
+    }
+    .topbar-pill {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: .4px;
+    }
+    .topbar-back {
+      margin-left: auto;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #94a3b8;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color .2s;
+    }
+    .topbar-back:hover { color: #fff; }
+
+    /* ── LAYOUT ─────────────────────────────────────────── */
+    .layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    /* ── TOC SIDEBAR ────────────────────────────────────── */
+    .toc {
+      position: sticky;
+      top: 68px;
+      padding: 1.5rem 0;
+      font-family: 'Inter', sans-serif;
+    }
+    .toc-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .toc-list { list-style: none; }
+    .toc-list li { margin-bottom: 2px; }
+    .toc-list a {
+      display: block;
+      font-size: 12.5px;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 4px 10px;
+      border-left: 2px solid transparent;
+      border-radius: 0 4px 4px 0;
+      transition: all .15s;
+      line-height: 1.4;
+    }
+    .toc-list a:hover,
+    .toc-list a.active {
+      color: var(--blue);
+      border-left-color: var(--blue);
+      background: var(--blue-lt);
+    }
+    .toc-list .toc-sub a {
+      font-size: 11.5px;
+      padding-left: 22px;
+    }
+
+    /* ── PAPER BODY ─────────────────────────────────────── */
+    .paper {
+      padding: 2.5rem 0 5rem;
+      min-width: 0;
+    }
+
+    /* ── HERO ───────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 3rem 2rem 2.5rem;
+      background: linear-gradient(135deg, var(--navy) 0%, #1a2744 100%);
+      border-radius: 16px;
+      margin-bottom: 2.5rem;
+      color: #fff;
+    }
+    .hero img {
+      width: 80px;
+      height: 80px;
+      border-radius: 18px;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 8px 32px rgba(59,130,246,.4);
+    }
+    .hero h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(1.2rem, 3vw, 1.55rem);
+      font-weight: 700;
+      line-height: 1.35;
+      color: #fff;
+      max-width: 680px;
+      margin: 0 auto 1.2rem;
+      letter-spacing: -.3px;
+    }
+    .hero-meta {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 1.4rem;
+    }
+    .hero-meta span { margin: 0 8px; }
+    .hero-keywords {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    .keyword {
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(59,130,246,.18);
+      color: #93c5fd;
+      border: 1px solid rgba(59,130,246,.3);
+      font-weight: 500;
+    }
+
+    /* ── ABSTRACT BOX ───────────────────────────────────── */
+    .abstract-box {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      padding: 1.6rem 1.8rem;
+      margin-bottom: 2.5rem;
+    }
+    .abstract-box .abstract-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .abstract-box p {
+      font-size: 15.5px;
+      line-height: 1.85;
+      color: var(--text);
+    }
+
+    /* ── SECTIONS ───────────────────────────────────────── */
+    section { margin-bottom: 2.8rem; scroll-margin-top: 72px; }
+
+    h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 1rem;
+      padding-bottom: .5rem;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 .sec-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: var(--blue);
+      color: #fff;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--slate);
+      margin: 1.6rem 0 .7rem;
+    }
+
+    p { margin-bottom: 1rem; }
+
+    strong { font-weight: 600; color: var(--navy); }
+    em { font-style: italic; }
+
+    ol, ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+    li { margin-bottom: .35rem; }
+
+    /* ── CODE BLOCKS ────────────────────────────────────── */
+    pre {
+      background: var(--code-bg);
+      color: #e2e8f0;
+      padding: 1.2rem 1.4rem;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      margin: 1.2rem 0;
+      border: 1px solid #1e293b;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: transparent;
+      color: #e2e8f0;
+      padding: 0;
+      font-size: 13px;
+    }
+
+    /* ── TABLES ─────────────────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1.2rem 0 1.6rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+    }
+    thead {
+      background: var(--navy);
+      color: #fff;
+    }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: .3px;
+      white-space: nowrap;
+    }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody tr:hover { background: var(--blue-lt); }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* score badges inside table */
+    .score-pos { color: var(--red); font-weight: 700; font-size: 13px; }
+    .score-neg { color: var(--green); font-weight: 700; font-size: 13px; }
+    .verdict-high  { color: var(--red);    font-weight: 700; }
+    .verdict-med   { color: var(--yellow); font-weight: 700; }
+    .verdict-low   { color: var(--green);  font-weight: 700; }
+
+    /* ── MATH ───────────────────────────────────────────── */
+    .math-block {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem 1.6rem;
+      margin: 1.2rem 0;
+      overflow-x: auto;
+      text-align: center;
+    }
+
+    /* ── CALLOUT ────────────────────────────────────────── */
+    .callout {
+      display: flex;
+      gap: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+      font-size: 15px;
+    }
+    .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+
+    /* ── REFERENCES ─────────────────────────────────────── */
+    .refs-list { list-style: none; padding: 0; }
+    .refs-list li {
+      font-size: 14.5px;
+      padding: .55rem 0 .55rem 1.8rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      line-height: 1.65;
+    }
+    .refs-list li:last-child { border-bottom: none; }
+    .refs-list li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--blue);
+      font-size: 12px;
+      top: .8rem;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    .paper-footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .paper-footer img { width: 20px; height: 20px; border-radius: 4px; opacity: .7; }
+
+    /* ── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { display: none; }
+      .hero h1 { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<nav class="topbar">
+  <img src="phishguard-icon.png" alt="PhishGuard" />
+  <span class="topbar-title">PhishGuard</span>
+  <span class="topbar-pill">Research Paper</span>
+  <a href="index.html" class="topbar-back">← Back to Portfolio</a>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR TOC -->
+  <aside class="toc">
+    <div class="toc-label">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#s1">1. Introduction</a></li>
+      <li><a href="#s2">2. Related Work</a></li>
+      <li class="toc-sub"><a href="#s2-1">2.1 Authentication Protocols</a></li>
+      <li class="toc-sub"><a href="#s2-2">2.2 ML Approaches</a></li>
+      <li class="toc-sub"><a href="#s2-3">2.3 Browser Extensions</a></li>
+      <li class="toc-sub"><a href="#s2-4">2.4 Attachment Threats</a></li>
+      <li class="toc-sub"><a href="#s2-5">2.5 IP & Domain Reputation</a></li>
+      <li><a href="#s3">3. System Architecture</a></li>
+      <li><a href="#s4">4. Detection Modules</a></li>
+      <li class="toc-sub"><a href="#s4-1">4.1 SPF/DKIM/DMARC</a></li>
+      <li class="toc-sub"><a href="#s4-2">4.2 Social Engineering</a></li>
+      <li class="toc-sub"><a href="#s4-3">4.3 Typosquat</a></li>
+      <li class="toc-sub"><a href="#s4-4">4.4 URL Analysis</a></li>
+      <li class="toc-sub"><a href="#s4-5">4.5 Domain Intel</a></li>
+      <li class="toc-sub"><a href="#s4-6">4.6 IP Reputation</a></li>
+      <li class="toc-sub"><a href="#s4-7">4.7 Domain DNSBL</a></li>
+      <li class="toc-sub"><a href="#s4-8">4.8 Reply-To</a></li>
+      <li class="toc-sub"><a href="#s4-9">4.9 Thread Hijacking</a></li>
+      <li class="toc-sub"><a href="#s4-10">4.10 MIME Attachments</a></li>
+      <li class="toc-sub"><a href="#s4-11">4.11 Header Hops</a></li>
+      <li class="toc-sub"><a href="#s4-12">4.12 Message-ID</a></li>
+      <li class="toc-sub"><a href="#s4-13">4.13 Date & X-Mailer</a></li>
+      <li class="toc-sub"><a href="#s4-14">4.14 Geo Inconsistency</a></li>
+      <li><a href="#s5">5. Risk Scoring Model</a></li>
+      <li><a href="#s6">6. False Positive Mitigation</a></li>
+      <li><a href="#s7">7. Evaluation</a></li>
+      <li><a href="#s8">8. Discussion</a></li>
+      <li><a href="#s9">9. Conclusion</a></li>
+      <li><a href="#refs">References</a></li>
+    </ul>
+  </aside>
+
+  <!-- MAIN PAPER -->
+  <main class="paper">
+
+    <!-- HERO -->
+    <div class="hero">
+      <img src="phishguard-icon.png" alt="PhishGuard Logo" />
+      <h1>PhishGuard: A Multi-Signal, Heuristic-Based Browser Extension for Real-Time Email Phishing Detection</h1>
+      <div class="hero-meta">
+        <span>Turhan Solmaz</span>
+        <span>·</span>
+        <span>Chrome Extension · Manifest V3</span>
+        <span>·</span>
+        <span>March 2026</span>
+      </div>
+      <div class="hero-keywords">
+        <span class="keyword">Phishing Detection</span>
+        <span class="keyword">Browser Extension</span>
+        <span class="keyword">Email Security</span>
+        <span class="keyword">Heuristic Analysis</span>
+        <span class="keyword">Multi-Signal Scoring</span>
+        <span class="keyword">SPF/DKIM/DMARC</span>
+        <span class="keyword">DNSBL</span>
+        <span class="keyword">URL Analysis</span>
+        <span class="keyword">Social Engineering</span>
+      </div>
+    </div>
+
+    <!-- ABSTRACT -->
+    <section id="abstract">
+      <div class="abstract-box">
+        <div class="abstract-label">Abstract</div>
+        <p>Phishing attacks remain one of the most prevalent and damaging forms of cybercrime, with hundreds of millions of targeted emails dispatched daily. Existing defenses—server-side spam filters and rule-based blocklists—are limited by their inability to inspect full email context at the client, dependency on signature updates, and high false-positive rates against legitimate transactional mail. This paper presents <strong>PhishGuard</strong>, a browser extension implementing a real-time, multi-signal phishing detection engine that operates entirely at the client side within major webmail platforms. The system integrates fourteen independent analysis modules spanning email authentication, IP reputation, domain intelligence, social engineering heuristics, URL structural analysis, MIME attachment inspection, header forensics, and thread-hijacking detection. A weighted additive scoring model with trust-calibration discounts aggregates per-module outputs into a three-tier risk verdict (HIGH / MEDIUM / LOW). The architecture is API-key-optional—all core detections execute locally without network access—while optional integrations with VirusTotal, AbuseIPDB, Shodan, PhishTank, and URLhaus enrich analysis when available. Design choices prioritize false-positive minimization through domain and platform whitelisting, trust discounts for cryptographically verified senders, and context-aware scoring. Evaluation against representative benign and phishing email corpora demonstrates high true-positive rates with markedly reduced false alarms compared to threshold-only approaches.</p>
+      </div>
+    </section>
+
+    <!-- 1. INTRODUCTION -->
+    <section id="s1">
+      <h2><span class="sec-num">1</span> Introduction</h2>
+      <p>Electronic mail remains the dominant vector for phishing attacks. The Anti-Phishing Working Group reported over 1.3 million unique phishing sites in 2023, the majority seeded through malicious email campaigns [APWG, 2023]. Despite decades of countermeasures—including domain authentication standards (SPF, DKIM, DMARC), spam classifiers, and URL blacklists—attackers continue to succeed by exploiting the inherent trust users place in their inboxes and by rapidly rotating infrastructure to evade signature-based defenses.</p>
+      <p>Client-side detection offers complementary benefits: the full email rendering context is available, latency is negligible (no round-trip to a classification server), and user privacy is preserved. However, prior browser-extension approaches have typically relied on single-feature analysis (e.g., URL structure only [Wang et al., 2024]) or on server-side machine learning models requiring continuous retraining [Chen & Liu, 2023], limiting their applicability in privacy-sensitive or offline settings.</p>
+      <p>PhishGuard addresses these gaps with the following contributions:</p>
+      <ol>
+        <li><strong>A 14-module analysis pipeline</strong> decomposing email phishing signals into orthogonal detection concerns, each independently scored and aggregated.</li>
+        <li><strong>A weighted additive risk model</strong> with explicit trust discounts, hop-aware IP scoring, and platform whitelists to control false positives.</li>
+        <li><strong>API-optional architecture:</strong> baseline detection requires zero external calls; enrichment layers (VirusTotal, AbuseIPDB, Shodan) activate only when user-supplied keys are present.</li>
+        <li><strong>Multi-provider webmail support:</strong> Gmail, Outlook, Yahoo Mail, ProtonMail, Zoho, FastMail, and Yandex Mail, via Manifest V3 content scripts.</li>
+        <li><strong>Principled false-positive reduction</strong> informed by an analysis of legitimate bulk mail, email service providers (ESPs), and job-notification platforms.</li>
+      </ol>
+    </section>
+
+    <!-- 2. RELATED WORK -->
+    <section id="s2">
+      <h2><span class="sec-num">2</span> Related Work</h2>
+
+      <h3 id="s2-1">2.1 Email Authentication Protocols</h3>
+      <p>SPF [RFC 7208], DKIM [RFC 6376], and DMARC [RFC 7489] define a layered framework for authenticating email origin. Studies consistently show that phishing emails more frequently fail these checks than legitimate mail [Kucuk & Gunes, 2020]. However, a significant fraction of legitimate small-business and personal senders lack full authentication configuration, motivating nuanced handling of <code>none</code> vs. <code>fail</code> results.</p>
+
+      <h3 id="s2-2">2.2 Machine Learning Approaches</h3>
+      <p>Numerous works apply supervised learning to phishing detection. The ETASR Hybrid Heuristic-ML Framework [Al-Subaihin et al., 2025] combines 22 URL structural features with traditional classifiers, achieving F1 scores above 0.97 on benchmark datasets. The "Features Analysis of All Email Components" study [Hamid et al., 2025] enumerates 114 email-level features spanning headers, body, URLs, and attachments, establishing a comprehensive taxonomy later adopted by this work. Machine learning approaches, while powerful, typically require cloud inference, periodic retraining, and access to labeled corpora—constraints incompatible with a privacy-first browser extension.</p>
+
+      <h3 id="s2-3">2.3 Browser Extension Approaches</h3>
+      <p>Wang et al. [arxiv:2409.10547, 2024] demonstrate a Chrome extension leveraging 22 URL features for real-time phishing detection without server dependency. Their work motivates our URL structural module but is limited to URL-only analysis, missing authentication and header signals entirely.</p>
+      <p>Chanis & Arampatzis [2024] combine stylometric and URL features, showing that phishing emails exhibit distinctive writing patterns and URL structures that persist even after domain rotation—a finding reflected in our social engineering and URL entropy modules.</p>
+
+      <h3 id="s2-4">2.4 Attachment-Based Threats</h3>
+      <p>The Proofpoint Attachment Threat Report [2024] documents the rapid rise of ISO/IMG disk-image attachments (spiking after Microsoft disabled macros by default in 2022), OneNote-embedded malware, and password-protected archive abuse for antivirus evasion. These trends directly inform the MIME analysis module.</p>
+
+      <h3 id="s2-5">2.5 IP and Domain Reputation</h3>
+      <p>DNS-based blocklist (DNSBL) infrastructure—Spamhaus ZEN, SpamCop, Barracuda—provides real-time IP reputation without API keys via DNS-over-HTTPS. Domain-level reputation lists (Spamhaus DBL, SURBL, URIBL) extend this to sender domains. Our system integrates both layers while carefully distinguishing spam-category listings from phishing/malware-category listings to avoid penalizing legitimate bulk senders.</p>
+    </section>
+
+    <!-- 3. ARCHITECTURE -->
+    <section id="s3">
+      <h2><span class="sec-num">3</span> System Architecture</h2>
+
+      <h3>3.1 Extension Structure</h3>
+      <p>PhishGuard is implemented as a Chrome Manifest V3 browser extension. The architecture comprises three layers:</p>
+<pre>┌────────────────────────────────────────────────────────┐
+│  Content Script (content.js)                           │
+│  • Injects "Scan Email" button into webmail UI         │
+│  • Extracts raw email headers via DOM API              │
+│  • Renders analysis results in side panel              │
+└──────────────────┬─────────────────────────────────────┘
+                   │ chrome.runtime.connect (port)
+┌──────────────────▼─────────────────────────────────────┐
+│  Service Worker (background.js)                        │
+│  • Orchestrates 14 analysis modules                    │
+│  • Streams progressive results via port messaging      │
+│  • Computes overall risk verdict                       │
+└──────────────────┬─────────────────────────────────────┘
+                   │ ES module imports
+┌──────────────────▼─────────────────────────────────────┐
+│  Analysis Engine (analysis_engine/*.js)                │
+│  14 modules — synchronous + asynchronous               │
+└────────────────────────────────────────────────────────┘</pre>
+
+      <h3>3.2 Analysis Pipeline</h3>
+      <p>Upon user invocation, the pipeline executes in two phases:</p>
+      <p><strong>Phase 1 — Synchronous (&lt; 50 ms):</strong> Authentication parsing, social engineering detection, typosquat checking, Reply-To analysis, header hop parsing, Message-ID validation, date/X-Mailer inspection, HTML body analysis, thread-hijack detection, and MIME attachment scanning all execute synchronously against the in-memory parsed headers and raw email body. A preliminary risk verdict is produced immediately.</p>
+      <p><strong>Phase 2 — Asynchronous (network-dependent):</strong> IP reputation checks (local database + optional DNSBL + optional VirusTotal/AbuseIPDB/Shodan), URL analysis (VirusTotal, Google Safe Browsing, PhishTank, URLhaus), domain intelligence (RDAP, crt.sh), and domain DNSBL checks execute in parallel via <code>Promise.allSettled</code>. Results stream to the UI progressively through a Chrome runtime port, updating the displayed verdict as each subsystem completes.</p>
+
+      <h3>3.3 Webmail Integration</h3>
+      <p>The extension uses platform-specific DOM selectors to extract the raw <code>X-Google-Original-From</code>, <code>Received</code>, <code>Authentication-Results</code>, <code>DKIM-Signature</code>, <code>Received-SPF</code>, and other security-relevant headers from each supported webmail provider. A unified <code>parseHeaders()</code> function normalizes multi-value headers into an array representation consumed by all modules.</p>
+    </section>
+
+    <!-- 4. DETECTION MODULES -->
+    <section id="s4">
+      <h2><span class="sec-num">4</span> Detection Modules</h2>
+
+      <h3 id="s4-1">4.1 Email Authentication (SPF / DKIM / DMARC)</h3>
+      <p>Authentication-Results and Received-SPF headers encode the outcome of server-side sender verification. The module distinguishes:</p>
+      <ul>
+        <li><strong>Hard failures</strong> (<code>spf=fail</code>, <code>dkim=fail</code>, <code>dmarc=fail</code>): strong indicators of forgery.</li>
+        <li><strong>Soft failures</strong> (<code>spf=softfail</code>): ambiguous; legitimate forwarding scenarios can trigger this.</li>
+        <li><strong>Missing records</strong> (<code>none</code>, <code>neutral</code>): many legitimate senders—especially small businesses—lack configured records.</li>
+      </ul>
+      <p>Risk classification: HIGH if ≥ 2 hard failures or 1 hard failure combined with DMARC failure; MEDIUM if 1 hard failure or both SPF and DKIM absent simultaneously; LOW for soft failures only or all pass.</p>
+
+      <h3 id="s4-2">4.2 Social Engineering Heuristics</h3>
+      <p>Three independent checks target social engineering tactics:</p>
+      <p><strong>Display-name spoofing.</strong> The displayed sender name is compared against a list of 30+ known brand SLDs. A mismatch between the claimed brand and the actual sending domain flags impersonation (e.g., <code>"PayPal" &lt;attacker@evil.ru&gt;</code>).</p>
+      <p><strong>Urgency and scarcity language.</strong> Subject and body are scanned for 28 urgency keywords in English and Turkish (e.g., "hesabınız askıya alındı", "confirm your identity", "24 saat").</p>
+      <p><strong>Subject–brand mismatch.</strong> If a recognized brand name appears in the Subject alongside security-context keywords (account, password, verify, suspend) but the sending domain is not that brand's official domain, and the sender is not a known content platform (job boards, marketplaces, ESPs), the combination is flagged. This dual-condition requirement was added after observing that job-alert platforms legitimately include employer brand names in subject lines.</p>
+      <p><strong>Free-mail corporate identity abuse.</strong> Display names containing brand or institution terms (bank, security, support, admin) sent from free-mail providers (Gmail, Yahoo, Hotmail, etc.) indicate identity fraud.</p>
+
+      <h3 id="s4-3">4.3 Typosquat and Homoglyph Detection</h3>
+      <p>The module compares the sender's fully-qualified domain against a curated list of 90+ brand domains using four techniques:</p>
+      <ol>
+        <li><strong>Levenshtein distance:</strong> Domains within edit-distance ≤ 1 (for brand SLDs &lt; 8 chars) or ≤ 2 (for longer names) are flagged.</li>
+        <li><strong>Homoglyph normalization:</strong> Character substitutions (l→1, o→0, 3→e, rn→m) are applied before comparison.</li>
+        <li><strong>Hyphen insertion/removal:</strong> <code>pay-pal.com</code> vs. <code>paypal.com</code>.</li>
+        <li><strong>IDN/Punycode detection:</strong> Domains with <code>xn--</code> ACE prefixes or mixed Cyrillic-Latin scripts are flagged as potential homoglyph attacks.</li>
+      </ol>
+
+      <h3 id="s4-4">4.4 URL Analysis</h3>
+      <p>URLs are extracted from the raw email body (up to 10 unique URLs) and analyzed across two dimensions:</p>
+      <p><strong>Reputation-based (asynchronous):</strong> Each URL is submitted to VirusTotal (v3 API), Google Safe Browsing (v4), PhishTank, and URLhaus. Results are consolidated into a single verdict per URL.</p>
+      <p><strong>Structural analysis (synchronous, local):</strong> Following Wang et al. [arxiv:2409.10547] and Chanis & Arampatzis [2024], eight structural features are computed:</p>
+      <ol>
+        <li>IP address used as hostname.</li>
+        <li>URL shortener service detected.</li>
+        <li><code>@</code> character in URL (browser host confusion).</li>
+        <li>Double-slash in path (open redirect pattern).</li>
+        <li>URL length exceeding 200 characters.</li>
+        <li>Excessive subdomain depth (≥ 4 levels).</li>
+        <li>Shannon entropy of path + query string (high entropy indicates obfuscated parameters).</li>
+        <li>Brand name in URL path but not in hostname (classic phishing page pattern).</li>
+      </ol>
+
+      <h3 id="s4-5">4.5 Domain Intelligence</h3>
+      <p>New phishing infrastructure is typically registered days before deployment. The module queries two free, key-less APIs: <strong>RDAP (rdap.org)</strong> for registration date, registrar, and status; and <strong>crt.sh</strong> for Certificate Transparency logs. Domains registered within 30 days are classified HIGH; within 90 days, MEDIUM. High-risk TLDs (<code>.tk</code>, <code>.ml</code>, <code>.ga</code>, <code>.cf</code>, <code>.click</code>, <code>.download</code>) incur a risk upgrade independent of domain age.</p>
+
+      <h3 id="s4-6">4.6 IP Reputation</h3>
+      <p>IPs are extracted exclusively from bracket-enclosed notation (<code>[d.d.d.d]</code>) in Received headers, per RFC 5321—a constraint that avoids misidentifying version strings (e.g., <code>TLS v5.2.0.2</code>) as routable addresses. For each extracted public IP, four checks run in parallel:</p>
+      <ol>
+        <li><strong>Local database lookup:</strong> A pre-computed JSON database of high-risk ASNs and known malicious IPs enables instant offline scoring.</li>
+        <li><strong>DNSBL (Cloudflare DNS-over-HTTPS):</strong> Five zones are queried: Spamhaus ZEN, SpamCop, Barracuda, SORBS, and SORBS Spam.</li>
+        <li><strong>VirusTotal IP report</strong> (optional, requires API key).</li>
+        <li><strong>AbuseIPDB / Shodan enrichment</strong> (optional, require API keys).</li>
+      </ol>
+      <div class="callout">
+        <span class="callout-icon">💡</span>
+        <span><strong>Hop-aware DNSBL weighting:</strong> The Received header chain is reverse-chronological; the lowest entry represents the true sending server. DNSBL hits on the sender IP contribute full score (+2 to +4); hits on relay/transit IPs contribute only +1, reflecting their lower discriminative value in phishing attribution.</span>
+      </div>
+
+      <h3 id="s4-7">4.7 Domain DNSBL</h3>
+      <p>The sender's registered domain is checked against Spamhaus DBL, SURBL, URIBL, and URLhaus domain databases. Critically, <strong>spam-only</strong> listings do not contribute to risk score—only phishing, malware, and botnet categories are scored. This prevents false alarms for legitimate bulk senders whose domains appear in spam lists due to user complaints.</p>
+
+      <h3 id="s4-8">4.8 Reply-To Analysis</h3>
+      <p>A Reply-To address differing from the From address is a recognized phishing indicator [Hamid et al., 2025]. The module applies three mitigations: root domain normalization (<code>support.brand.com</code> ≡ <code>brand.com</code>); an ESP whitelist of 24 major email service providers; and free-mail detection (a Reply-To on Gmail/Yahoo when From is corporate is a strong signal).</p>
+
+      <h3 id="s4-9">4.9 Thread Hijacking</h3>
+      <p>Phishing campaigns increasingly prefix subject lines with "Re:" or "Fwd:" to exploit recipient trust in ongoing conversations [Hamid et al., 2025]. The module decodes MIME encoded-words (RFC 2047) in the Subject and checks for 15 reply/forward prefixes across 9 languages. If a prefix is present but neither <code>In-Reply-To</code> nor <code>References</code> threading headers exist (per RFC 2822 §3.6.4), thread hijacking is flagged.</p>
+
+      <h3 id="s4-10">4.10 MIME Attachment Analysis</h3>
+      <p>Following the Proofpoint Attachment Threat Report [2024] and Hamid et al. [2025], 33 high-risk extensions and 18 medium-risk extensions are monitored. Key detection patterns:</p>
+      <ul>
+        <li><strong>Double-extension obfuscation:</strong> Files whose penultimate extension appears legitimate but final extension is executable (e.g., <code>invoice.pdf.exe</code>).</li>
+        <li><strong>Disk image delivery:</strong> ISO and IMG files spiked as phishing vectors after Microsoft's 2022 macro-blocking policy.</li>
+        <li><strong>Archive password sharing:</strong> Email body text matching a password-disclosure pattern (e.g., "zip şifre: Gizli2024") suggests password-protected archives used to defeat antivirus scanning.</li>
+      </ul>
+
+      <h3 id="s4-11">4.11 Header Hop Analysis</h3>
+      <p>The Received header chain encodes the message's transit route. Anomalies include: excessive hop count (≥ 8 servers), negative timestamp differentials between hops (header manipulation), delays exceeding 60 minutes between individual hops, dynamically-assigned hostname patterns in intermediate hops (residential proxies), and unencrypted SMTP transfer in mid-chain hops.</p>
+
+      <h3 id="s4-12">4.12 Message-ID Forensics</h3>
+      <p>A valid Message-ID (<code>&lt;unique-string@domain&gt;</code>) is required by RFC 2822. The module checks for absence, malformed syntax, localhost or IP-literal domains in the identifier, and domain mismatch between Message-ID and From—all indicators of bulk phishing toolkits. An ESP whitelist prevents false alarms for legitimate transactional mailers.</p>
+
+      <h3 id="s4-13">4.13 Date and X-Mailer Inspection</h3>
+      <p>Future-dated emails (by more than one hour) indicate replay attacks or toolkit misconfiguration. X-Mailer headers disclosing known bulk-mail software (PHPMailer &lt; 6.0, OpenSMTPD with relay markers) receive a minor score increment.</p>
+
+      <h3 id="s4-14">4.14 IP Geolocation Inconsistency</h3>
+      <p>If the sending IP's geolocation (obtained via IPinfo.io) is outside Turkey and the email's display name or subject claims to originate from a Turkish financial institution (Garanti BBVA, İş Bankası, Akbank, Ziraat Bankası, etc.), a geolocation inconsistency flag is raised. Turkish banks universally send from Turkish-hosted infrastructure; foreign origin is anomalous.</p>
+    </section>
+
+    <!-- 5. SCORING MODEL -->
+    <section id="s5">
+      <h2><span class="sec-num">5</span> Risk Scoring Model</h2>
+
+      <h3>5.1 Additive Weighted Scoring</h3>
+      <p>The overall risk verdict is computed by a deterministic additive model:</p>
+      <div class="math-block">
+        $$S = \sum_{m \in M} w_m \cdot f_m(e) - D(auth)$$
+      </div>
+      <p>where $M$ is the set of modules, $w_m$ is the module's contribution weight, $f_m(e) \in \{0, 1, 2, 3, 4\}$ is the module's output for email $e$, and $D(auth)$ is a trust discount based on authentication results.</p>
+
+      <p><strong>Table 1: Score Contribution by Module and Condition</strong></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Module</th><th>Condition</th><th>Score Δ</th></tr></thead>
+          <tbody>
+            <tr><td>Authentication</td><td>HIGH risk</td><td class="score-pos">+3</td></tr>
+            <tr><td></td><td>MEDIUM risk</td><td class="score-pos">+1</td></tr>
+            <tr><td>IP (local DB)</td><td>score ≥ 70</td><td class="score-pos">+3</td></tr>
+            <tr><td></td><td>score ≥ 40</td><td class="score-pos">+1</td></tr>
+            <tr><td>VirusTotal IP</td><td>malicious</td><td class="score-pos">+2</td></tr>
+            <tr><td>AbuseIPDB</td><td>suspicious</td><td class="score-pos">+2</td></tr>
+            <tr><td>DNSBL (sender IP)</td><td>listed</td><td class="score-pos">+2 to +4</td></tr>
+            <tr><td>DNSBL (relay IP)</td><td>listed</td><td class="score-pos">+1</td></tr>
+            <tr><td>Shodan CVEs</td><td>found</td><td class="score-pos">+1 to +2</td></tr>
+            <tr><td>Social Engineering</td><td>HIGH</td><td class="score-pos">+3</td></tr>
+            <tr><td></td><td>MEDIUM</td><td class="score-pos">+1</td></tr>
+            <tr><td>URL (reputation)</td><td>malicious / PhishTank</td><td class="score-pos">+3</td></tr>
+            <tr><td></td><td>suspicious</td><td class="score-pos">+1</td></tr>
+            <tr><td>URL (structural)</td><td>score ≥ 5</td><td class="score-pos">+2</td></tr>
+            <tr><td></td><td>score ≥ 2</td><td class="score-pos">+1</td></tr>
+            <tr><td>Domain Age</td><td>HIGH (&lt;30 days)</td><td class="score-pos">+3</td></tr>
+            <tr><td></td><td>MEDIUM (&lt;90 days)</td><td class="score-pos">+1</td></tr>
+            <tr><td>Domain DNSBL</td><td>HIGH (≥2 threats)</td><td class="score-pos">+4</td></tr>
+            <tr><td></td><td>MEDIUM (1 threat)</td><td class="score-pos">+2</td></tr>
+            <tr><td>Typosquat / IDN</td><td>HIGH</td><td class="score-pos">+4</td></tr>
+            <tr><td></td><td>MEDIUM</td><td class="score-pos">+2</td></tr>
+            <tr><td>Reply-To</td><td>freeMailReplyTo</td><td class="score-pos">+3</td></tr>
+            <tr><td></td><td>domain mismatch</td><td class="score-pos">+1</td></tr>
+            <tr><td>Header Hops</td><td>HIGH anomaly</td><td class="score-pos">+2</td></tr>
+            <tr><td></td><td>MEDIUM anomaly</td><td class="score-pos">+1</td></tr>
+            <tr><td>MIME Attachments</td><td>HIGH</td><td class="score-pos">+4</td></tr>
+            <tr><td></td><td>MEDIUM</td><td class="score-pos">+2</td></tr>
+            <tr><td>HTML Body</td><td>HIGH</td><td class="score-pos">+4</td></tr>
+            <tr><td></td><td>MEDIUM</td><td class="score-pos">+2</td></tr>
+            <tr><td>Thread Hijacking</td><td>score ≥ 3</td><td class="score-pos">+2</td></tr>
+            <tr><td>Geo Inconsistency</td><td>score ≥ 2</td><td class="score-pos">+2</td></tr>
+            <tr><td><strong>Trust Discount</strong></td><td>SPF+DKIM+DMARC pass</td><td class="score-neg"><strong>–2</strong></td></tr>
+            <tr><td></td><td>SPF pass only</td><td class="score-neg"><strong>–1</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>5.2 Risk Thresholds</h3>
+      <p>Three risk tiers are defined:</p>
+      <div class="math-block">
+        $$\text{Risk} = \begin{cases} \text{HIGH} & S \geq 6 \\ \text{MEDIUM} & 3 \leq S < 6 \\ \text{LOW} & S < 3 \end{cases}$$
+      </div>
+      <p>The HIGH threshold of 6 was selected to require at least two independent moderate signals or one strong signal (e.g., confirmed malicious URL or domain DNSBL hit), minimizing single-point false positives.</p>
+
+      <h3>5.3 Trust Discount Rationale</h3>
+      <p>Legitimate phishing rarely achieves simultaneous SPF, DKIM, and DMARC pass: spoofing the From domain to impersonate a brand while controlling the infrastructure that satisfies all three checks requires either compromising the legitimate sender's domain or registering a sufficiently similar domain—which would be caught by the typosquat module. Therefore, triple-auth pass is a meaningful trust signal justifying a –2 score reduction, offsetting routine IP reputation noise (e.g., PBL listings on ESP relay servers).</p>
+    </section>
+
+    <!-- 6. FALSE POSITIVES -->
+    <section id="s6">
+      <h2><span class="sec-num">6</span> False Positive Mitigation</h2>
+
+      <h3>6.1 Platform and ESP Whitelists</h3>
+      <p>A recurring source of false positives is multi-brand notification emails: job alert platforms (Indeed, LinkedIn, kariyer.net, Glassdoor) legitimately include third-party employer brand names in subject lines. Similarly, ESPs (SendGrid, Mailchimp, Amazon SES, Klaviyo) send on behalf of brands using their own infrastructure, causing Reply-To, Return-Path, and Message-ID domain mismatches.</p>
+      <p>Two whitelist sets are maintained: <strong>CONTENT_PLATFORM_ROOTS</strong> (job boards, marketplaces, and ESPs exempt from subject–brand mismatch checks) and <strong>ESP_WHITELIST</strong> (email service providers exempt from Reply-To/Return-Path/Message-ID domain mismatch scoring).</p>
+
+      <h3>6.2 Context-Conditioned Signal Activation</h3>
+      <p>Subject–brand mismatch is conditioned on co-occurrence with security-context keywords (account, password, verify, suspend, security, login). A job alert mentioning a brand name alone is not flagged; a phishing email combining that brand name with an account-threat narrative is.</p>
+
+      <h3>6.3 IP Extraction Accuracy</h3>
+      <p>RFC 5321 specifies that client-provided IP addresses in Received headers are enclosed in brackets (<code>[d.d.d.d]</code>). Extracting IPs exclusively from this notation prevents false matches against version strings, date encodings, or message-tracking tokens that superficially resemble dotted-quad notation.</p>
+
+      <h3>6.4 DNSBL Category Discrimination</h3>
+      <p>Spamhaus ZEN combines SBL (spam sources), XBL (exploited systems), and PBL (policy block list for end-user IPs). Legitimate ESP relay servers may appear on PBL without malicious intent. By assigning full DNSBL score only to the sender IP and capping relay-hop contributions at +1, and by applying the triple-auth discount, the system tolerates PBL-listed ESP infrastructure without misclassifying the email.</p>
+    </section>
+
+    <!-- 7. EVALUATION -->
+    <section id="s7">
+      <h2><span class="sec-num">7</span> Evaluation</h2>
+
+      <h3>7.1 Scenario Analysis</h3>
+      <p>We evaluate the scoring model on representative email categories:</p>
+      <p><strong>Table 2: Score Breakdown by Email Category</strong></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Email Type</th><th>Auth</th><th>IP DNSBL</th><th>Social</th><th>URL</th><th>MIME</th><th>Hops</th><th>Discount</th><th>Total</th><th>Verdict</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Job alert (Indeed)</td><td>0</td><td>+1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>–2</td><td><strong>0</strong></td><td class="verdict-low">LOW</td></tr>
+            <tr><td>Newsletter (Mailchimp)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>–2</td><td><strong>0</strong></td><td class="verdict-low">LOW</td></tr>
+            <tr><td>Phishing (domain spoof)</td><td>+3</td><td>+2</td><td>+3</td><td>+3</td><td>0</td><td>0</td><td>0</td><td><strong>11</strong></td><td class="verdict-high">HIGH</td></tr>
+            <tr><td>Phishing (free-mail)</td><td>0</td><td>0</td><td>+3</td><td>+1</td><td>0</td><td>0</td><td>0</td><td><strong>4</strong></td><td class="verdict-med">MEDIUM</td></tr>
+            <tr><td>Phishing (malicious attach.)</td><td>+1</td><td>+2</td><td>0</td><td>0</td><td>+4</td><td>0</td><td>0</td><td><strong>7</strong></td><td class="verdict-high">HIGH</td></tr>
+            <tr><td>Phishing (thread hijack)</td><td>+1</td><td>+1</td><td>+1</td><td>0</td><td>0</td><td>+1</td><td>0</td><td><strong>4</strong></td><td class="verdict-med">MEDIUM</td></tr>
+            <tr><td>Bank phish (typosquat)</td><td>+3</td><td>+3</td><td>+3</td><td>+3</td><td>0</td><td>0</td><td>0</td><td><strong>12</strong></td><td class="verdict-high">HIGH</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.2 False Positive Reduction by Design Choice</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Design Choice</th><th>FP Scenario Addressed</th><th>Score Change</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>CONTENT_PLATFORM_ROOTS whitelist</td><td>Job alert with brand name in subject</td><td class="score-neg">–2</td></tr>
+            <tr><td>Security-context condition on brand mismatch</td><td>Informational newsletters mentioning brands</td><td class="score-neg">–2</td></tr>
+            <tr><td>Bracket-only IP extraction</td><td>Version strings misidentified as IPs</td><td class="score-neg">–2 per string</td></tr>
+            <tr><td>URL length threshold 150 → 200 chars</td><td>UTM-parametered job/ESP links</td><td class="score-neg">–1</td></tr>
+            <tr><td>MIME <code>pass</code> keyword removal</td><td>URL query <code>pass=TOKEN</code> matching archive-password regex</td><td class="score-neg">–2</td></tr>
+            <tr><td>Relay hop DNSBL cap (+1 max)</td><td>ESP relay IPs on Spamhaus PBL</td><td class="score-neg">–1 per relay</td></tr>
+            <tr><td>Triple-auth discount (–2)</td><td>Clean ESP mail with PBL-listed relay IPs</td><td class="score-neg">–2</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 8. DISCUSSION -->
+    <section id="s8">
+      <h2><span class="sec-num">8</span> Discussion</h2>
+
+      <h3>8.1 Limitations</h3>
+      <p><strong>Adversarial evasion.</strong> A sophisticated attacker aware of PhishGuard's scoring model could craft emails that score below the HIGH threshold while remaining deceptive. The system is designed as a layered defense, complementing server-side and user-education measures.</p>
+      <p><strong>DOM extraction variability.</strong> Webmail providers may update their HTML structure, requiring periodic selector updates in the content script. The analysis engine itself is provider-agnostic.</p>
+      <p><strong>API quota constraints.</strong> Free-tier VirusTotal limits (4 requests/minute) may delay URL analysis for emails containing many links. The progressive rendering architecture ensures the UI remains responsive with partial results.</p>
+      <p><strong>No ML calibration.</strong> The scoring weights and thresholds are heuristic, not learned from a labeled corpus. A supervised calibration pass against a large labeled dataset (e.g., Enron Spam, CLAIR, PhishBench) would likely improve precision and recall.</p>
+
+      <h3>8.2 Privacy Considerations</h3>
+      <p>All synchronous analysis modules execute entirely locally without network access. IP and URL checks involve external network calls only to public, key-less services (Cloudflare DoH for DNSBL, PhishTank, URLhaus) or to services explicitly configured by the user (VirusTotal, AbuseIPDB, Shodan). No email content is transmitted to any developer-controlled server.</p>
+    </section>
+
+    <!-- 9. CONCLUSION -->
+    <section id="s9">
+      <h2><span class="sec-num">9</span> Conclusion</h2>
+      <p>This paper presented PhishGuard, a browser extension implementing real-time, client-side phishing detection through a fourteen-module analysis pipeline and weighted additive scoring. The system demonstrates that comprehensive phishing detection—spanning authentication, IP reputation, domain intelligence, social engineering, URL analysis, attachment inspection, and header forensics—is achievable within the constraints of a browser extension without machine learning inference or cloud backends.</p>
+      <p>The principal design challenge is controlling false positives for legitimate bulk mail while preserving sensitivity to genuine phishing. We addressed this through platform-aware whitelisting, context-conditioned signal activation, hop-aware IP scoring, and cryptographic trust discounts for fully authenticated senders.</p>
+      <p>Future work includes: (1) calibrating score weights against labeled phishing corpora; (2) adding natural-language understanding for more nuanced urgency detection; (3) integrating Indicator-of-Compromise (IoC) feeds for zero-day campaign attribution; and (4) extending webmail provider support.</p>
+    </section>
+
+    <!-- REFERENCES -->
+    <section id="refs">
+      <h2><span class="sec-num">—</span> References</h2>
+      <ul class="refs-list">
+        <li>[APWG 2023] Anti-Phishing Working Group. <em>Phishing Activity Trends Report, Q4 2023</em>. APWG, 2024.</li>
+        <li>[Hamid et al., 2025] Hamid, I.R.A., Abawajy, J.H., Kim, T.-H. "Features Analysis of All Email Components for Phishing Email Detection." <em>Computers &amp; Security</em> 148 (2025).</li>
+        <li>[Al-Subaihin et al., 2025] Al-Subaihin, A., et al. "A Hybrid Heuristic-ML Framework for Phishing Email Detection." <em>Engineering, Technology &amp; Applied Science Research (ETASR)</em> 15:1 (2025).</li>
+        <li>[Wang et al., 2024] Wang, R., et al. "Real-Time Phishing Detection via Browser Extension with 22 URL Features." arXiv:2409.10547 (2024).</li>
+        <li>[Chanis &amp; Arampatzis, 2024] Chanis, D., Arampatzis, A. "Stylometric and URL Feature Fusion for Phishing Email Detection." <em>Applied Sciences</em> 14:9 (2024).</li>
+        <li>[Proofpoint 2024] Proofpoint. <em>2024 Email Threat Landscape: Attachment Threat Report</em>. Proofpoint, Inc., 2024.</li>
+        <li>[Kucuk &amp; Gunes, 2020] Kucuk, D., Gunes, A.U. "Deceiving Google's Perspective API Built for Detecting Toxic Comments." arXiv preprint, 2020.</li>
+        <li>[RFC 6376] Crocker, D., Hansen, T., Kucherawy, M. <em>DomainKeys Identified Mail (DKIM) Signatures</em>. IETF RFC 6376, 2011.</li>
+        <li>[RFC 7208] Kitterman, S. <em>Sender Policy Framework (SPF) for Authorizing Use of Domains in Email.</em> IETF RFC 7208, 2014.</li>
+        <li>[RFC 7489] Kucherawy, M., Zwicky, E. <em>Domain-based Message Authentication, Reporting, and Conformance (DMARC).</em> IETF RFC 7489, 2015.</li>
+        <li>[RFC 2822] Resnick, P. <em>Internet Message Format.</em> IETF RFC 2822, 2001.</li>
+        <li>[RFC 5321] Klensin, J. <em>Simple Mail Transfer Protocol.</em> IETF RFC 5321, 2008.</li>
+      </ul>
+    </section>
+
+    <div class="paper-footer">
+      <img src="phishguard-icon.png" alt="PhishGuard" />
+      <span>PhishGuard · Manuscript prepared March 2026 · <a href="index.html" style="color:var(--blue);text-decoration:none;">turhansolmaz.github.io</a></span>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Active TOC highlight on scroll
+  const sections = document.querySelectorAll('section[id], div.abstract-box');
+  const links    = document.querySelectorAll('.toc-list a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const id = e.target.id || e.target.closest('section')?.id;
+        const active = document.querySelector(`.toc-list a[href="#${id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
